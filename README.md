@@ -1,56 +1,44 @@
-# Platonic Representation Hypothesis: Convergence Analysis (MNIST-1D vs 2D)
+# Platonic Representation Hypothesis: Symmetric Convergence Analysis
 
-This project investigates the **Platonic Representation Hypothesis**  by analyzing how different neural network architectures (MLPs vs. CNNs) and input modalities (1D synthetic signals vs. 2D real images) converge toward a shared representation geometry.
+This project investigates the **Platonic Representation Hypothesis** by analyzing how different neural network architectures (MLPs vs. CNNs) and input modalities (1D synthetic signals vs. 2D real images) converge toward a shared representation geometry.
 
-## Project Overview
-
-The objective is to test whether independent models, trained to solve the same conceptual task (digit classification), learn similar feature spaces regardless of initialization (random seed) or data format.
+## Project Evolution: Symmetric Setup
+Originally designed to compare multiple 1D models against a single 2D anchor, the experiment has been upgraded to a **symmetric 5x5 configuration**. We now train 5 independent versions of both the 1D and 2D models to ensure that our "Platonic Score" is robust and not biased by a single random initialization.
 
 ### Key Features:
-
-* **MNIST-1D Dataset**: A synthetic, low-dimensional (40 channels) version of MNIST designed to measure spatial inductive biases.
-
-
+* **MNIST-1D & MNIST-2D**: A direct comparison between synthetic 1D signals and standard 2D spatial images.
 * **Centered Kernel Alignment (CKA)**: A similarity metric used to compare feature spaces, ensuring invariance to orthogonal transformation and isotropic scaling.
-
-
-* **Platonic Validation**: A cross-domain comparison between the "ideal geometry" learned by a 2D CNN and multiple 1D MLPs.
+* **Robust Statistical Validation**: The final metrics are derived from the average of **25 cross-domain comparisons** (5x5 matrix).
 
 ---
 
 ## Model Architectures
-
-The project compares two distinct neural network types, both projecting to a **128-dimensional** bottleneck to allow for direct CKA comparison:
+Both models project their internal representations to a **128-dimensional** bottleneck to allow for direct CKA comparison:
 
 | Model | Type | Input | Feature Latent Space |
-| --- | --- | --- | --- |
-| **Mnist1DNet** | Multi-Layer Perceptron (MLP) | 1D Vector (40) | 128 Dimensions |
-| **Mnist2DNet** | Convolutional Neural Network (CNN) | 2D Image (28x28) | 128 Dimensions |
+| :--- | :--- | :--- | :--- |
+| **Mnist1DNet** | MLP | 1D Vector (40) | 128 Dimensions |
+| **Mnist2DNet** | CNN | 2D Image (28x28) | 128 Dimensions |
 
 ---
 
 ## Methodology & CKA
+To quantify the alignment between feature matrices $X$ and $Y$, we implement **Linear CKA**:
 
-To quantify the alignment between feature matrices  and , we implement **Linear CKA**:
+1.  **Centering**: Features are centered using a centering matrix $H$.
+2.  **HSIC Calculation**: We compute the Hilbert-Schmidt Independence Criterion to measure statistical dependence.
+3.  **Normalization**: The score is normalized to the range $[0, 1]$.
 
-1. **Centering**: Features are centered by subtracting the mean using a centering matrix .
-
-
-2. **HSIC Calculation**: We compute the Hilbert-Schmidt Independence Criterion to measure statistical dependence.
-
-
-3. **Normalization**: The score is normalized to the range `[0, 1]`, where 1 indicates identical representations up to rotation and scaling.
+$$CKA(X, Y) = \frac{HSIC(X, Y)}{\sqrt{HSIC(X, X) \cdot HSIC(Y, Y)}}$$
 
 ---
 
 ## Experimental Results
+The findings demonstrate strong internal convergence within each domain and a measurable, though partial, cross-domain invariance:
 
-The findings demonstrate strong internal convergence but partial cross-domain invariance:
-
-* **1D Convergence (Self-CKA) ≈ 0.96**: 1D models trained with different seeds reach nearly identical internal geometries.
-
-
-* **Platonic Score (1D vs 2D) ≈ 0.25**: There is a measurable structural correlation between 1D and 2D representations, though it is influenced by architectural differences.
+* **1D Consistency (Self-CKA) ≈ 0.96**: 1D models consistently reach nearly identical internal geometries regardless of the seed.
+* **2D Consistency (Self-CKA) ≈ 0.98**: CNNs show even higher stability in their learned representations.
+* **Platonic Match (1D vs 2D) ≈ 0.25**: A stable structural correlation exists across domains, supporting the hypothesis that different modalities can converge toward shared conceptual representations.
 
 ---
 
